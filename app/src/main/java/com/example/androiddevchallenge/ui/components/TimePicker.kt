@@ -5,12 +5,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -20,25 +16,29 @@ import com.example.androiddevchallenge.MainViewModel
 
 @Composable
 fun TimePicker(isStarted: Boolean, mainViewModel: MainViewModel) {
-
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        HourInput(isStarted)
-        MinuteInput(isStarted)
-        SecondInput(isStarted)
+
+        val timerTime = mainViewModel.time.value!!
+        HourInput(isStarted, timerTime.hour) { mainViewModel.setHour(hour = it) }
+        MinuteInput(isStarted, timerTime.minute) { mainViewModel.setMinute(minute = it) }
+        SecondInput(isStarted, timerTime.second) { mainViewModel.setSecond(second = it) }
     }
 }
 
 @Composable
-fun HourInput(isStarted: Boolean) {
-    var hour by rememberSaveable { mutableStateOf("") }
+fun HourInput(isStarted: Boolean, hour: Int, onChange: (Int) -> Unit) {
+    var hourState: String by remember { mutableStateOf(hour.toString()) }
     val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
-        value = hour,
-        onValueChange = { hour = it },
+        value = hourState,
+        onValueChange = {
+            if (it.isNotEmpty()) onChange(it.toInt()) else onChange(0)
+            hourState = it
+        },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
@@ -52,13 +52,16 @@ fun HourInput(isStarted: Boolean) {
 }
 
 @Composable
-fun MinuteInput(isStarted: Boolean) {
-    var minute by rememberSaveable { mutableStateOf("") }
+fun MinuteInput(isStarted: Boolean, minute: Int, onChange: (Int) -> Unit) {
+    var minuteState by rememberSaveable { mutableStateOf(minute.toString()) }
     val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
-        value = minute,
-        onValueChange = { minute = it },
+        value = minuteState,
+        onValueChange = {
+            if (it.isNotEmpty()) onChange(it.toInt()) else onChange(0)
+            minuteState = it
+        },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
@@ -72,13 +75,16 @@ fun MinuteInput(isStarted: Boolean) {
 }
 
 @Composable
-fun SecondInput(isStarted: Boolean) {
-    var second by rememberSaveable { mutableStateOf("") }
+fun SecondInput(isStarted: Boolean, second: Int, onChange: (Int) -> Unit) {
+    var secondState by rememberSaveable { mutableStateOf(second.toString()) }
     val focusManager = LocalFocusManager.current
 
     OutlinedTextField(
-        value = second,
-        onValueChange = { second = it },
+        value = secondState,
+        onValueChange = {
+            if (it.isNotEmpty()) onChange(it.toInt()) else onChange(0)
+            secondState = it
+        },
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,

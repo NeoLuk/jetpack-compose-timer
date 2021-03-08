@@ -20,23 +20,22 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.androiddevchallenge.models.TimerTime
 import com.example.androiddevchallenge.ui.components.TimePicker
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import com.example.androiddevchallenge.ui.utils.isEmpty
 
 class MainActivity : AppCompatActivity() {
     private val mainViewModel by viewModels<MainViewModel>()
@@ -54,24 +53,53 @@ class MainActivity : AppCompatActivity() {
 // Start building your app here!
 @Composable
 fun MyApp(mainViewModel: MainViewModel) {
+    val focusManager = LocalFocusManager.current
     Surface(color = MaterialTheme.colors.background) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            val timerTime: TimerTime by mainViewModel.time.observeAsState(TimerTime())
             val isStarted: Boolean by mainViewModel.isStarted.observeAsState(false)
 
+
+            if (isStarted) {
+                Box(modifier = Modifier.size(250.dp)) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .fillMaxSize(),
+                        strokeWidth = 12.dp, progress = 0.0f,
+                    )
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        text = "${timerTime.hour}:${timerTime.minute}:${timerTime.second}",
+                        fontSize = 35.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(60.dp))
+            }
+
+
+
             TimePicker(isStarted, mainViewModel)
+
+            Spacer(modifier = Modifier.height(60.dp))
+
             Button(
                 onClick = {
+                    focusManager.clearFocus()
                     if (isStarted) {
                         mainViewModel.stopTimer()
                     } else {
-                        mainViewModel.startTimer(10)
+                        mainViewModel.startTimer()
                     }
                 },
                 shape = CircleShape,
                 modifier = Modifier.size(100.dp),
+                enabled = !timerTime.isEmpty()
             ) {
                 Text(text = if (isStarted) "Stop" else "Start")
             }
@@ -79,19 +107,3 @@ fun MyApp(mainViewModel: MainViewModel) {
 
     }
 }
-
-//@Preview("Light Theme", widthDp = 360, heightDp = 640)
-//@Composable
-//fun LightPreview() {
-//    MyTheme {
-//        MyApp()
-//    }
-//}
-//
-//@Preview("Dark Theme", widthDp = 360, heightDp = 640)
-//@Composable
-//fun DarkPreview() {
-//    MyTheme(darkTheme = true) {
-//        MyApp()
-//    }
-//}

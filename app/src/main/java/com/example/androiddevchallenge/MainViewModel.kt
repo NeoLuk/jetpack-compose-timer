@@ -5,6 +5,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.androiddevchallenge.models.TimerTime
+import com.example.androiddevchallenge.ui.utils.convertSecondToTimer
+import com.example.androiddevchallenge.ui.utils.convertToSecond
 
 
 class MainViewModel : ViewModel() {
@@ -13,22 +16,36 @@ class MainViewModel : ViewModel() {
     lateinit var countdownTimer: CountDownTimer
 
 
-    private val _time = MutableLiveData(0)
-    val time: LiveData<Int> = _time
+    private val _time = MutableLiveData(TimerTime())
+    val time: LiveData<TimerTime> = _time
 
-    fun startTimer(time: Int) {
-        _time.value = time
-        countdownTimer = object : CountDownTimer(time.toLong() * 1000, 1000) {
-            override fun onTick(p0: Long) {
-                Log.d("fcuk", "onTick: $p0")
+    fun setHour(hour: Int) {
+        Log.d("fcuk", "setHour: $hour")
+        _time.value = TimerTime(hour = hour)
+    }
+
+    fun setMinute(minute: Int) {
+        _time.value?.minute = minute
+    }
+
+    fun setSecond(second: Int) {
+        _time.value?.second = second
+    }
+
+    fun startTimer() {
+        countdownTimer =
+            object : CountDownTimer(time.value!!.convertToSecond().toLong() * 1000, 1000) {
+                override fun onTick(p0: Long) {
+                    Log.d("fcuk", "onTick: $p0")
+                    _time.value = convertSecondToTimer((p0 / 1000).toInt())
+                }
+
+                override fun onFinish() {
+                    Log.d("fcuk", "onFinish: ")
+                    _isStarted.value = false
+                }
+
             }
-
-            override fun onFinish() {
-                Log.d("fcuk", "onFinish: ")
-                _isStarted.value = false
-            }
-
-        }
         countdownTimer.start()
         _isStarted.value = true
 

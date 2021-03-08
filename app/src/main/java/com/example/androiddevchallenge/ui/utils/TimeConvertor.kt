@@ -1,11 +1,13 @@
 package com.example.androiddevchallenge.ui.utils
 
-import android.util.Log
 import com.example.androiddevchallenge.models.TimerTime
-import com.example.androiddevchallenge.ui.components.TimePicker
 
-fun convertTimerToSecond(timerTime: TimerTime): Int {
-    return timerTime.hour * 60 * 60 + timerTime.minute * 60 + timerTime.second
+fun TimerTime.convertToSecond(): Int {
+    return this.hour * 60 * 60 + this.minute * 60 + this.second
+}
+
+fun TimerTime.isEmpty(): Boolean {
+    return this.hour == 0 && this.minute == 0 && this.second == 0
 }
 
 fun convertSecondToTimer(seconds: Int): TimerTime {

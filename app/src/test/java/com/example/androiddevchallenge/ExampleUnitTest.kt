@@ -17,7 +17,7 @@ package com.example.androiddevchallenge
 
 import com.example.androiddevchallenge.models.TimerTime
 import com.example.androiddevchallenge.ui.utils.convertSecondToTimer
-import com.example.androiddevchallenge.ui.utils.convertTimerToSecond
+import com.example.androiddevchallenge.ui.utils.convertToSecond
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -30,26 +30,26 @@ class TimerTimeTest {
     @Test
     fun convert_empty_time() {
         val emptyTime = TimerTime()
-        assertEquals(0, convertTimerToSecond(emptyTime))
+        assertEquals(0, emptyTime.convertToSecond())
     }
 
     @Test
     fun convert_hour_to_second() {
         val oneHour = TimerTime(hour = 1)
-        assertEquals(3600, convertTimerToSecond(oneHour))
+        assertEquals(3600, oneHour.convertToSecond())
     }
 
     @Test
     fun convert_minute_to_second() {
         val oneMinute = TimerTime(minute = 1)
-        assertEquals(60, convertTimerToSecond(oneMinute))
+        assertEquals(60, oneMinute.convertToSecond())
     }
 
 
     @Test
     fun convert_second_to_second() {
         val oneSecond = TimerTime(second = 1)
-        assertEquals(1, convertTimerToSecond(oneSecond))
+        assertEquals(1, oneSecond.convertToSecond())
     }
 
     @Test
@@ -57,9 +57,9 @@ class TimerTimeTest {
         val oneAndHalfHour = TimerTime(hour = 1, minute = 30)
         val twoMinuteAndTwentySecond = TimerTime(minute = 2, second = 20)
         val oneHourAndOneSecond = TimerTime(hour = 1, second = 1)
-        assertEquals(5400, convertTimerToSecond(oneAndHalfHour))
-        assertEquals(140, convertTimerToSecond(twoMinuteAndTwentySecond))
-        assertEquals(3601, convertTimerToSecond(oneHourAndOneSecond))
+        assertEquals(5400, oneAndHalfHour.convertToSecond())
+        assertEquals(140, twoMinuteAndTwentySecond.convertToSecond())
+        assertEquals(3601, oneHourAndOneSecond.convertToSecond())
     }
 
     @Test
@@ -68,8 +68,8 @@ class TimerTimeTest {
         assertEquals(TimerTime(), convertSecondToTimer(0))
         assertEquals(TimerTime(minute = 1), convertSecondToTimer(60))
         assertEquals(TimerTime(hour = 1), convertSecondToTimer(3600))
-        assertEquals(TimerTime(hour = 1,minute = 30), convertSecondToTimer(5400))
-        assertEquals(TimerTime(minute = 2,second = 20), convertSecondToTimer(140))
-        assertEquals(TimerTime(hour = 1,second = 1), convertSecondToTimer(3601))
+        assertEquals(TimerTime(hour = 1, minute = 30), convertSecondToTimer(5400))
+        assertEquals(TimerTime(minute = 2, second = 20), convertSecondToTimer(140))
+        assertEquals(TimerTime(hour = 1, second = 1), convertSecondToTimer(3601))
     }
 }
