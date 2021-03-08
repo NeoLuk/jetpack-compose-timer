@@ -15,6 +15,8 @@
  */
 package com.example.androiddevchallenge
 
+import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -29,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,8 +43,10 @@ import com.example.androiddevchallenge.ui.utils.isEmpty
 class MainActivity : AppCompatActivity() {
     private val mainViewModel by viewModels<MainViewModel>()
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             MyTheme(darkTheme = isSystemInDarkTheme()) {
                 MyApp(mainViewModel)
@@ -54,28 +59,31 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun MyApp(mainViewModel: MainViewModel) {
     val focusManager = LocalFocusManager.current
+
+    val timeDisplay: TimerTime by mainViewModel.timeDisplay.observeAsState(TimerTime())
+    val timerTime: TimerTime by mainViewModel.time.observeAsState(TimerTime())
+    val timerState: TimerState by mainViewModel.timerState.observeAsState(TimerState.Idle)
+
     Surface(color = MaterialTheme.colors.background) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            val timerTime: TimerTime by mainViewModel.time.observeAsState(TimerTime())
-            val isStarted: Boolean by mainViewModel.isStarted.observeAsState(false)
 
 
-            if (isStarted) {
+            if (timerState == TimerState.Start || timerState == TimerState.Pause) {
                 Box(modifier = Modifier.size(250.dp)) {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .fillMaxSize(),
-                        strokeWidth = 12.dp, progress = 0.0f,
+                        strokeWidth = 12.dp, progress = mainViewModel.getProgress(),
                     )
                     Text(
                         modifier = Modifier
                             .align(Alignment.Center),
-                        text = "${timerTime.hour}:${timerTime.minute}:${timerTime.second}",
+                        text = "${timeDisplay.hour}:${timeDisplay.minute}:${timeDisplay.second}",
                         fontSize = 35.sp
                     )
                 }
@@ -84,25 +92,44 @@ fun MyApp(mainViewModel: MainViewModel) {
 
 
 
-            TimePicker(isStarted, mainViewModel)
+            TimePicker(timerState, mainViewModel)
 
             Spacer(modifier = Modifier.height(60.dp))
 
-            Button(
-                onClick = {
-                    focusManager.clearFocus()
-                    if (isStarted) {
-                        mainViewModel.stopTimer()
-                    } else {
-                        mainViewModel.startTimer()
-                    }
-                },
-                shape = CircleShape,
-                modifier = Modifier.size(100.dp),
-                enabled = !timerTime.isEmpty()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
             ) {
-                Text(text = if (isStarted) "Stop" else "Start")
+                Button(
+                    onClick = {
+                        focusManager.clearFocus()
+                        mainViewModel.stopTimer()
+                    },
+                    shape = CircleShape,
+                    modifier = Modifier.size(100.dp),
+                    enabled = !timerTime.isEmpty(),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
+                ) {
+                    Text(text = if (timerState == TimerState.Start) "Stop" else "Clear")
+                }
+
+                Button(
+                    onClick = {
+                        focusManager.clearFocus()
+                        if (timerState == TimerState.Start) {
+                            mainViewModel.pauseTimer()
+                        } else {
+                            mainViewModel.startTimer()
+                        }
+                    },
+                    shape = CircleShape,
+                    modifier = Modifier.size(100.dp),
+                    enabled = !timerTime.isEmpty()
+                ) {
+                    Text(text = if (timerState == TimerState.Start) "Pause" else "Start")
+                }
             }
+
         }
 
     }

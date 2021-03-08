@@ -1,7 +1,7 @@
 package com.example.androiddevchallenge.models
 
 data class TimerTime(
-    var hour: Int = 0,
-    var minute: Int = 0,
-    var second: Int = 0
+    val hour: Int = 0,
+    val minute: Int = 0,
+    val second: Int = 0
 )
