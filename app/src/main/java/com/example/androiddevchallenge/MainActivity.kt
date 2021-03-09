@@ -21,13 +21,15 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,12 +42,15 @@ import com.example.androiddevchallenge.ui.components.TimePicker
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import com.example.androiddevchallenge.ui.utils.isEmpty
 
+
+@ExperimentalAnimationApi
 class MainActivity : AppCompatActivity() {
     private val mainViewModel by viewModels<MainViewModel>()
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             MyTheme(darkTheme = isSystemInDarkTheme()) {
@@ -56,6 +61,7 @@ class MainActivity : AppCompatActivity() {
 }
 
 // Start building your app here!
+@ExperimentalAnimationApi
 @Composable
 fun MyApp(mainViewModel: MainViewModel) {
     val focusManager = LocalFocusManager.current
@@ -72,13 +78,20 @@ fun MyApp(mainViewModel: MainViewModel) {
         ) {
 
 
-            if (timerState == TimerState.Start || timerState == TimerState.Pause) {
+            AnimatedVisibility(timerState == TimerState.Start || timerState == TimerState.Pause) {
                 Box(modifier = Modifier.size(250.dp)) {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .fillMaxSize(),
-                        strokeWidth = 12.dp, progress = mainViewModel.getProgress(),
+                        strokeWidth = 12.dp,
+                        progress = animateFloatAsState(
+                            targetValue = mainViewModel.getProgress(),
+                            animationSpec = tween(
+                                durationMillis = 1000,
+                                easing = LinearEasing
+                            )
+                        ).value,
                     )
                     Text(
                         modifier = Modifier
@@ -87,10 +100,9 @@ fun MyApp(mainViewModel: MainViewModel) {
                         fontSize = 35.sp
                     )
                 }
-                Spacer(modifier = Modifier.height(60.dp))
             }
 
-
+            Spacer(modifier = Modifier.height(60.dp))
 
             TimePicker(timerState, mainViewModel)
 
@@ -110,7 +122,10 @@ fun MyApp(mainViewModel: MainViewModel) {
                     enabled = !timerTime.isEmpty(),
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)
                 ) {
-                    Text(text = if (timerState == TimerState.Start) "Stop" else "Clear")
+                    Text(
+                        text = if (timerState == TimerState.Start) "Stop" else "Clear",
+                        fontSize = 20.sp
+                    )
                 }
 
                 Button(
@@ -126,7 +141,10 @@ fun MyApp(mainViewModel: MainViewModel) {
                     modifier = Modifier.size(100.dp),
                     enabled = !timerTime.isEmpty()
                 ) {
-                    Text(text = if (timerState == TimerState.Start) "Pause" else "Start")
+                    Text(
+                        text = if (timerState == TimerState.Start) "Pause" else "Start",
+                        fontSize = 20.sp
+                    )
                 }
             }
 

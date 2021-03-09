@@ -20,7 +20,7 @@ class MainViewModel : ViewModel() {
     private val _timerState = MutableLiveData(TimerState.Idle)
     val timerState: LiveData<TimerState> = _timerState
 
-    lateinit var countdownTimer: CountDownTimer
+    private lateinit var countdownTimer: CountDownTimer
 
 
     private val _time = MutableLiveData(TimerTime())
@@ -47,6 +47,7 @@ class MainViewModel : ViewModel() {
     private fun resetTimer() {
         _timeDisplay.value = TimerTime()
         _time.value = TimerTime()
+        _timerState.value = TimerState.Idle
     }
 
     fun startTimer() {
@@ -65,8 +66,8 @@ class MainViewModel : ViewModel() {
                 }
 
             }
-        countdownTimer.start()
         _timerState.value = TimerState.Start
+        countdownTimer.start()
 
     }
 
@@ -80,10 +81,11 @@ class MainViewModel : ViewModel() {
             countdownTimer.cancel()
         }
         resetTimer()
-        _timerState.value = TimerState.Idle
     }
 
     fun getProgress(): Float {
-        return timeDisplay.value!!.convertToSecond() / time.value!!.convertToSecond().toFloat()
+        val timerTimeSecond = time.value!!.convertToSecond()
+        val timerTimeDisplay = timeDisplay.value!!.convertToSecond()
+        return if (timerTimeSecond == 0) 0f else timerTimeDisplay / timerTimeSecond.toFloat()
     }
 }
