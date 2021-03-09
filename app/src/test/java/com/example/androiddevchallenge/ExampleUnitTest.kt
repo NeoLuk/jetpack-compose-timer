@@ -18,7 +18,7 @@ package com.example.androiddevchallenge
 import com.example.androiddevchallenge.models.TimerTime
 import com.example.androiddevchallenge.ui.utils.convertSecondToTimer
 import com.example.androiddevchallenge.ui.utils.convertToSecond
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
@@ -44,7 +44,6 @@ class TimerTimeTest {
         val oneMinute = TimerTime(minute = 1)
         assertEquals(60, oneMinute.convertToSecond())
     }
-
 
     @Test
     fun convert_second_to_second() {
